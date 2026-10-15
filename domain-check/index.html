@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Проверить возраст домена онлайн — RDAP</title>
+<meta name="description" content="Бесплатная проверка возраста домена, дат регистрации и публичных RDAP-данных.">
+<link rel="canonical" href="https://fortnite26173-netizen.github.io/domain-check/">
+<meta property="og:title" content="Проверить возраст домена онлайн — RDAP">
+<meta property="og:description" content="Бесплатная проверка возраста домена, дат регистрации и публичных RDAP-данных.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fortnite26173-netizen.github.io/domain-check/">
+<style>
+:root{--bg:#0b1020;--card:#121a30;--muted:#a7b0c2;--text:#eef3ff;--line:#263352;--accent:#7dd3fc;--accent2:#86efac}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#08101f,#0d1424 55%,#0a1020);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:auto;padding:22px}
+nav{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:12px 0 22px}
+nav a{color:#dce8ff}
+.hero{padding:42px 0 28px}
+h1{font-size:clamp(34px,6vw,60px);line-height:1.04;margin:0 0 16px}
+h2{margin-top:36px}
+.lead{font-size:20px;color:#c6d0e3;max-width:760px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.card{background:rgba(18,26,48,.94);border:1px solid var(--line);border-radius:18px;padding:20px}
+.tool{background:#0d1529;border:1px solid #2b3d64;border-radius:18px;padding:18px;margin:20px 0}
+input,button,select{font:inherit;border-radius:12px;border:1px solid #344769;padding:12px 14px}
+input{width:100%;background:#0a1020;color:white;margin-bottom:10px}
+select{background:#0a1020;color:white;margin:0 8px 10px 0}
+button,.cta{display:inline-block;background:#e7f7ff;color:#06131f;border:0;font-weight:700;padding:12px 16px;border-radius:12px;cursor:pointer}
+.cta{margin:10px 0}
+small,.muted{color:var(--muted)}
+pre{white-space:pre-wrap;word-break:break-word;background:#080d18;border:1px solid #24304a;border-radius:12px;padding:14px;min-height:58px}
+footer{padding:50px 0 30px;color:var(--muted);font-size:14px}
+.badge{display:inline-block;border:1px solid #35527d;border-radius:999px;padding:5px 10px;color:#bde9ff}
+.note{border-left:4px solid var(--accent2);padding:12px 14px;background:#0e1b24;border-radius:8px}
+</style>
+<script>
+function q(id){return document.getElementById(id)}
+function safeText(v){return String(v ?? "")}
+</script>
+</head>
+<body>
+<div class="wrap">
+<nav>
+<a href="/">OSINT Self‑Check</a>
+<a href="/domain-check/">Домен</a>
+<a href="/dns-check/">DNS</a>
+<a href="/ip-check/">IP</a>
+<a href="/username-check/">Никнейм</a>
+<a href="/digital-footprint/">Цифровой след</a>
+</nav>
+
+<section class="hero"><span class="badge">Domain OSINT</span><h1>Проверить возраст и регистрацию домена</h1>
+<p class="lead">Получите публичные RDAP-данные домена: даты регистрации и изменения, регистратор и статус.</p></section>
+<div class="tool">
+<input id="domain" placeholder="example.com" autocomplete="off">
+<button onclick="domainCheck()">Проверить</button>
+<pre id="out">Введите домен.</pre>
+</div>
+<div class="note">Проверяйте собственные домены или объекты, на исследование которых у вас есть разрешение.</div>
+<h2>Что показывает проверка</h2>
+<p>RDAP — современный протокол доступа к публичным регистрационным данным доменных имён. Наличие или отсутствие отдельных полей зависит от реестра и политики приватности.</p>
+<h2>Как интерпретировать</h2>
+<p>Очень молодой домен сам по себе не доказывает мошенничество, но вместе с другими сигналами может быть поводом проверить сайт внимательнее.</p>
+<a class="cta" href="https://t.me/x001xx77_bot?start=r_BqLBjNeYjr" rel="nofollow sponsored">Расширенный поиск в Telegram</a>
+<script>
+async function domainCheck(){
+ const d=q('domain').value.trim().toLowerCase().replace(/^https?:\/\//,'').split('/')[0];
+ if(!d) return;
+ q('out').textContent='Запрос...';
+ try{
+   const r=await fetch('https://rdap.org/domain/'+encodeURIComponent(d));
+   if(!r.ok) throw new Error('RDAP HTTP '+r.status);
+   const j=await r.json();
+   const ev={};
+   (j.events||[]).forEach(x=>ev[x.eventAction]=x.eventDate);
+   q('out').textContent=[
+     'Домен: '+safeText(j.ldhName||d),
+     'Создан: '+safeText(ev.registration||'не указано'),
+     'Изменён: '+safeText(ev['last changed']||ev.last_update_of_RDAP_database||'не указано'),
+     'Истекает: '+safeText(ev.expiration||'не указано'),
+     'Статусы: '+safeText((j.status||[]).join(', ')||'не указано')
+   ].join('\n');
+ }catch(e){q('out').textContent='Не удалось получить RDAP: '+e.message}
+}
+</script>
+
+<footer>
+<p>Инструменты предназначены для проверки собственных данных, доменов и инфраструктуры либо объектов, на исследование которых у вас есть право.</p>
+<p><a href="https://t.me/x001xx77_bot?start=r_BqLBjNeYjr" rel="nofollow sponsored">Расширенный поиск в Telegram</a></p>
+</footer>
+</div>
+</body></html>

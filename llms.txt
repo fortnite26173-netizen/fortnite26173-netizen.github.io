@@ -1,0 +1,5 @@
+# OSINT Self-Check
+
+Public self-OSINT, privacy and anti-scam educational tools in Russian.
+Primary topics: domain RDAP, DNS, IP/ASN, username self-check, privacy checklists.
+Website: https://fortnite26173-netizen.github.io/

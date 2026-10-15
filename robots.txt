@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://fortnite26173-netizen.github.io/sitemap.xml

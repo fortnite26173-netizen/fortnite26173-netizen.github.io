@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free Self-OSINT Toolkit — Domain, DNS, IP and Digital Footprint Checks</title>
+<meta name="description" content="Free self-OSINT toolkit for checking your own digital footprint, domain registration, DNS records and IP/ASN information.">
+<link rel="canonical" href="https://fortnite26173-netizen.github.io/en/">
+<meta name="robots" content="index,follow">
+<style>
+:root{--bg:#08101f;--card:#121a30;--line:#263352;--text:#edf4ff;--muted:#a7b0c2;--accent:#7dd3fc}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#08101f,#0d1424 60%,#0a1020);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:980px;margin:auto;padding:22px}
+nav{display:flex;gap:14px;flex-wrap:wrap;padding:10px 0 22px}.hero{padding:42px 0 24px}
+h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin:0 0 16px}.lead{font-size:20px;color:#c6d0e3}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.card{background:#121a30;border:1px solid var(--line);border-radius:18px;padding:20px}
+input,select,button{font:inherit;border-radius:10px;border:1px solid #344769;padding:11px}input{width:100%;background:#0a1020;color:white;margin-bottom:10px}
+select{background:#0a1020;color:white}button,.cta{display:inline-block;background:#e7f7ff;color:#06131f;border:0;font-weight:800;padding:11px 15px;border-radius:10px;cursor:pointer}
+pre{white-space:pre-wrap;word-break:break-word;background:#080d18;border:1px solid #24304a;border-radius:12px;padding:14px;min-height:58px}
+.note{border-left:4px solid #86efac;padding:12px 14px;background:#0e1b24;border-radius:8px}
+footer{padding:50px 0 30px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body><div class="wrap">
+<nav><a href="/">RU</a><a href="/en/">Self‑OSINT Toolkit</a><a href="/en/self-osint-checklist/">Guide</a></nav>
+<section class="hero">
+<h1>Free Self‑OSINT Toolkit</h1>
+<p class="lead">Quick checks for your own digital footprint and infrastructure: domain registration, DNS, IP/ASN and public identifiers.</p>
+</section>
+
+<div class="grid">
+<div class="card">
+<h2>Domain / RDAP</h2>
+<input id="domain" placeholder="example.com">
+<button onclick="domainCheck()">Check domain</button>
+<pre id="domainOut">Enter a domain.</pre>
+</div>
+
+<div class="card">
+<h2>DNS lookup</h2>
+<input id="dns" placeholder="example.com">
+<select id="type"><option>A</option><option>AAAA</option><option>MX</option><option>NS</option><option>TXT</option></select>
+<button onclick="dnsCheck()">Check DNS</button>
+<pre id="dnsOut">Enter a domain.</pre>
+</div>
+
+<div class="card">
+<h2>IP / ASN</h2>
+<input id="ip" placeholder="8.8.8.8">
+<button onclick="ipCheck()">Check IP</button>
+<pre id="ipOut">Enter an IP address.</pre>
+</div>
+</div>
+
+<h2>Self‑OSINT, not people-tracking</h2>
+<p>This toolkit is designed for your own accounts, your own infrastructure, anti-scam checks, or targets you are authorized to investigate. Public data can be incomplete or misleading, so avoid treating a single match as proof of identity.</p>
+
+<p><a class="cta" href="/en/self-osint-checklist/">Read the self‑OSINT checklist</a></p>
+
+<h2>Need a broader search?</h2>
+<p>The Telegram service linked below supports additional search types and reports. The link is a referral link.</p>
+<p><a class="cta" href="https://t.me/x001xx77_bot?start=r_BqLBjNeYjr" rel="nofollow sponsored">Open extended search in Telegram</a></p>
+
+<footer>Use only for lawful self-checks, anti-scam research and authorized investigations.</footer>
+</div>
+<script>
+function out(id,s){document.getElementById(id).textContent=s}
+async function domainCheck(){
+ let d=document.getElementById('domain').value.trim().toLowerCase().replace(/^https?:\/\//,'').split('/')[0];
+ if(!d)return;out('domainOut','Loading...');
+ try{let r=await fetch('https://rdap.org/domain/'+encodeURIComponent(d));if(!r.ok)throw Error('HTTP '+r.status);let j=await r.json();let e={};(j.events||[]).forEach(x=>e[x.eventAction]=x.eventDate);
+ out('domainOut',['Domain: '+(j.ldhName||d),'Registered: '+(e.registration||'not available'),'Updated: '+(e['last changed']||'not available'),'Expires: '+(e.expiration||'not available'),'Status: '+((j.status||[]).join(', ')||'not available')].join('\n'));}
+ catch(e){out('domainOut','Lookup failed: '+e.message)}
+}
+async function dnsCheck(){
+ let n=document.getElementById('dns').value.trim(),t=document.getElementById('type').value;if(!n)return;out('dnsOut','Loading...');
+ try{let r=await fetch('https://dns.google/resolve?name='+encodeURIComponent(n)+'&type='+encodeURIComponent(t));let j=await r.json();let a=(j.Answer||[]).map(x=>x.data);out('dnsOut',a.length?a.join('\n'):'No records found');}
+ catch(e){out('dnsOut','Lookup failed: '+e.message)}
+}
+async function ipCheck(){
+ let ip=document.getElementById('ip').value.trim();if(!ip)return;out('ipOut','Loading...');
+ try{let r=await fetch('https://ipwho.is/'+encodeURIComponent(ip));let j=await r.json();if(j.success===false)throw Error(j.message||'lookup failed');let c=j.connection||{};
+ out('ipOut',['IP: '+(j.ip||''),'Country: '+(j.country||'not available'),'Region: '+(j.region||'not available'),'ASN: '+(c.asn||'not available'),'Organization: '+(c.org||'not available'),'ISP: '+(c.isp||'not available')].join('\n'));}
+ catch(e){out('ipOut','Lookup failed: '+e.message)}
+}
+</script>
+</body></html>
